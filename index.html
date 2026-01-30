@@ -10,7 +10,7 @@
             padding: 0;
             overflow: hidden;
             background-color: #fceeb5;
-            /* 内置背景图案：淡黄色的祥云纹理 */
+            /* 游戏主背景：淡黄色的祥云纹理 */
             background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M10 50 Q25 25 40 50 T70 50 T100 50" fill="none" stroke="rgba(217, 46, 46, 0.1)" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="rgba(255, 215, 0, 0.2)"/></svg>');
             background-size: 100px 100px;
             font-family: 'Microsoft YaHei', sans-serif;
@@ -52,7 +52,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* --- 物品样式 (保持大图标) --- */
+        /* --- 物品样式 --- */
         .item {
             position: absolute;
             width: 70px;
@@ -75,16 +75,15 @@
             width: 80px; height: 80px;
         }
         .bomb {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="55" r="40" fill="black"/><rect x="45" y="5" width="10" height="20" fill="black"/><path d="M50 5 Q60 0 70 10" stroke="orange" stroke-width="3" fill="none"/><circle cx="70" cy="10" r="5" fill="red"/></svg>');
+            background-image: url('https://raw.githubusercontent.com/SolidG233/https-github.com-SolidG233/refs/heads/main/boom.png');
         }
 
-        /* --- 玩家样式 (内置财神形象) --- */
+        /* --- 玩家样式 --- */
         #player {
             position: absolute;
             width: 100px;
             height: 100px;
             z-index: 50;
-            /* 内置一个更可爱的聚宝盆图标作为玩家 */
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 40 Q50 100 90 40 L80 30 L20 30 Z" fill="%23d92e2e" stroke="%23ffd700" stroke-width="3"/><ellipse cx="50" cy="30" rx="35" ry="10" fill="%23ffd700"/><text x="50" y="70" font-size="30" text-anchor="middle">💰</text></svg>');
             background-size: contain;
             background-repeat: no-repeat;
@@ -110,41 +109,64 @@
             100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
         }
 
+        /* --- 弹窗样式 (内置背景) --- */
         #modal {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 200;
+            /* 遮罩背景：深色 + 铜钱纹理 */
+            background-color: rgba(20, 0, 0, 0.9);
+            background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="10" stroke="rgba(255,215,0,0.1)" fill="none" stroke-width="2"/><rect x="26" y="26" width="8" height="8" fill="none" stroke="rgba(255,215,0,0.1)"/></svg>');
         }
 
         .modal-content {
-            background: white;
+            /* 弹窗主体：米黄色纸张质感 + 红色边框 */
+            background-color: #fffbf0;
+            /* 内部淡淡的祥云背景 */
+            background-image: url('data:image/svg+xml;utf8,<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg"><path d="M10 40 Q20 20 40 40 T70 40" fill="none" stroke="rgba(217, 46, 46, 0.05)" stroke-width="2"/></svg>');
             padding: 30px;
             border-radius: 15px;
             text-align: center;
             width: 85%;
             max-width: 320px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            /* 双层边框效果 */
+            border: 4px solid #d92e2e;
+            box-shadow: 0 0 0 4px #fffbf0, 0 10px 25px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* 装饰：弹窗顶部的红色横幅 */
+        .modal-content::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 10px;
+            background: #d92e2e;
+            border-radius: 5px;
         }
 
         .start-btn {
-            background: #d92e2e;
-            color: white;
-            border: none;
+            background: linear-gradient(to bottom, #d92e2e, #b02121);
+            color: #fff;
+            border: 2px solid #ffd700;
             padding: 15px 50px;
             font-size: 22px;
             border-radius: 30px;
             cursor: pointer;
             margin-top: 20px;
             font-weight: bold;
-            box-shadow: 0 4px 0 #b02121;
+            box-shadow: 0 4px 0 #801010;
             transition: transform 0.1s;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
         }
         .start-btn:active {
             transform: translateY(4px);
@@ -184,11 +206,11 @@
 
     <div id="modal">
         <div class="modal-content">
-            <h2 id="modal-title">无尽夺宝</h2>
-            <p id="modal-desc" style="font-size: 16px; color: #666; margin-bottom: 25px; line-height: 1.6;">
+            <h2 id="modal-title" style="color:#d92e2e; margin-top:0; font-size:28px;">无尽夺宝</h2>
+            <p id="modal-desc" style="font-size: 16px; color: #555; margin-bottom: 25px; line-height: 1.6;">
                 手指拖动聚宝盆接住财宝<br>
                 分数越高 → 速度越快 & 体积越大<br>
-                <span style="color:#d92e2e; font-weight:bold;">千万别碰炸弹！</span>
+                <span style="color:#d92e2e; font-weight:bold; background:rgba(217,46,46,0.1); padding:2px 5px; border-radius:4px;">千万别碰炸弹！</span>
             </p>
             
             <button class="start-btn" onclick="startGame()">开始挑战</button>
