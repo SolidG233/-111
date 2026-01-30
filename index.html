@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>无尽夺宝 - 图片背景版</title>
+    <title>读书小方接福啦</title>
     <style>
         body {
             margin: 0;
@@ -12,7 +12,7 @@
             background-color: #fceeb5;
             font-family: 'Microsoft YaHei', sans-serif;
             touch-action: none;
-            background-image: url('https://img.heliar.top/file/1769754167285_bej.jpg');
+            background-image: url('https://raw.githubusercontent.com/SolidG233/https-github.com-SolidG233/dcbae19150d8e46c297bc2e9338f08be24c9e7c3/12.jpg');
             background-size: cover; 
             background-position: center center;
             background-repeat: no-repeat;
@@ -71,7 +71,7 @@
             background-image: url('https://img.heliar.top/file/1769753263426_boom.png');
         }
 
-        #player {
+      #player {
             position: absolute;
             width: 100px;
             height: 100px;
@@ -80,20 +80,18 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center bottom;
-            /* width和height的过渡保留，transform交给动画控制 */
-            transition: width 0.3s ease, height 0.3s ease; 
             will-change: transform, left, top; 
         }
 
-        /* --- 新增：吃到奖励时的Q弹动画 --- */
+        /* 吃到奖励时的Q弹动画 */
         @keyframes popScale {
             0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.2); } /* 放大到1.2倍 */
+            50% { transform: translate(-50%, -50%) scale(1.2); } 
             100% { transform: translate(-50%, -50%) scale(1); }
         }
 
         .pop-effect {
-            animation: popScale 0.15s ease-out; /* 0.15秒完成，快速有力 */
+            animation: popScale 0.15s ease-out; 
         }
 
         .score-popup {
@@ -181,21 +179,6 @@
             transform: translateY(2px);
         }
 
-        #status-indicator {
-            position: absolute;
-            top: 70px;
-            right: 20px;
-            font-size: 14px;
-            color: #333;
-            text-align: right;
-            line-height: 1.5;
-            background: rgba(255,255,255,0.7);
-            padding: 8px;
-            border-radius: 5px;
-            pointer-events: none;
-            backdrop-filter: blur(3px);
-        }
-
     </style>
 </head>
 <body>
@@ -203,9 +186,7 @@
 <div id="game-container">
     <div class="header">
         <span id="score-display">得分: 0</span>
-        <span id="time-display">坚持: 0s</span>
-    </div>
-    <div id="status-indicator">
+        <span id="time-display">时间: 0s</span>
     </div>
     
     <div id="player"></div>
@@ -213,14 +194,14 @@
 
     <div id="modal">
         <div class="modal-content">
-            <h2 id="modal-title" style="color:#d92e2e; margin-top:0; font-size:28px;">无尽夺宝</h2>
+            <h2 id="modal-title" style="color:#d92e2e; margin-top:0; font-size:28px;">读书小方接福啦</h2>
             <p id="modal-desc" style="font-size: 16px; color: #555; margin-bottom: 25px; line-height: 1.6;">
-                手指拖动聚宝盆接住财宝<br>
-                分数越高 → 速度越快 & 体积越大<br>
+                手指拖动小书人接住好运<br>
+                <span style="color:#d92e2e; font-weight:bold;">开工红包12:18准时到账</span><br>
                 <span style="color:#d92e2e; font-weight:bold; background:rgba(217,46,46,0.1); padding:2px 5px; border-radius:4px;">千万别碰炸弹！</span>
             </p>
             
-            <button id="start-btn" class="start-btn" onclick="startGame()">开始挑战</button>
+            <button id="start-btn" class="start-btn" onclick="startGame()">开工大吉</button>
         </div>
     </div>
 </div>
@@ -235,8 +216,8 @@
     let currentFallMax;
     let bombProbability;
     
-    let basePlayerWidth = 100; 
-    let basePlayerHeight = 100;
+    const basePlayerWidth = 100; 
+    const basePlayerHeight = 100;
 
     let survivalTimer;
     let bombTimer;
@@ -245,7 +226,6 @@
 
     const scoreEl = document.getElementById('score-display');
     const timeEl = document.getElementById('time-display');
-    const statusEl = document.getElementById('status-indicator');
     const playArea = document.getElementById('play-area');
     const player = document.getElementById('player');
     const modal = document.getElementById('modal');
@@ -283,7 +263,7 @@
     });
 
     function activateButtonCooldown() {
-        let timeLeft = 5;
+        let timeLeft = 3;
         startBtn.classList.add('disabled');
         startBtn.innerText = `请等待 ${timeLeft}s`;
         
@@ -294,7 +274,7 @@
             } else {
                 clearInterval(timer);
                 startBtn.classList.remove('disabled');
-                startBtn.innerText = '开始挑战';
+                startBtn.innerText = '开工大吉';
             }
         }, 1000);
     }
@@ -304,10 +284,12 @@
         timeSurvived = 0;
         isPlaying = true;
         
-        currentSpawnRate = 700; 
-        currentFallMin = 2.5;
-        currentFallMax = 4.0;
+        // --- 速度调整区域 ---
+        currentSpawnRate = 600; // 初始生成间隔 (越小越快，原700)
+        currentFallMin = 2.5;   // 最快下落时间 (越小越快，原2.5)
+        currentFallMax = 2.8;   // 最慢下落时间 (越小越快，原4.0)
         bombProbability = 0.2; 
+        // ------------------
 
         player.style.width = basePlayerWidth + 'px';
         player.style.height = basePlayerHeight + 'px';
@@ -335,29 +317,13 @@
     }
 
     function updateDifficultyByScore() {
-        let speedReduction = Math.min(score * 0.02, 1.8); 
-        currentFallMin = Math.max(0.6, 2.5 - speedReduction);
-        currentFallMax = Math.max(1.0, 4.0 - speedReduction);
+        // 难度增加逻辑也随初始速度调整
+        let speedReduction = Math.min(score * 0.015, 1.0); 
+        currentFallMin = Math.max(1, 1.5 - speedReduction); // 基准值改为 1.5
+        currentFallMax = Math.max(1.0, 2 - speedReduction); // 基准值改为 2.8
 
-        let rateReduction = Math.min(score * 4, 550);
-        currentSpawnRate = Math.max(150, 700 - rateReduction);
-
-        let sizeBonus = Math.floor(score / 10) * 5;
-        let newWidth = Math.min(basePlayerWidth + sizeBonus, 200);
-        let newHeight = Math.min(basePlayerHeight + (sizeBonus * 0.8), 180);
-
-        player.style.width = newWidth + 'px';
-        player.style.height = newHeight + 'px';
-
-        let sizeText = "正常";
-        if(newWidth > 120) sizeText = "变大";
-        if(newWidth > 160) sizeText = "巨大";
-        if(newWidth >= 200) sizeText = "巨无霸";
-
-        statusEl.innerHTML = `
-            速度加成: +${Math.floor(speedReduction * 100)}%<br>
-            接宝范围: ${sizeText} (${newWidth}px)
-        `;
+        let rateReduction = Math.min(score * 3, 350);
+        currentSpawnRate = Math.max(150, 500 - rateReduction); // 基准值改为 500
     }
 
     function updateUI() {
@@ -454,17 +420,13 @@
             updateUI();
             updateDifficultyByScore(); 
             showScorePopup(x, y, points);
-            
-            // --- 新增：触发Q弹动画 ---
-            triggerPopEffect();
+            triggerPopEffect(); 
         }
     }
 
-    // --- 新增：处理Q弹效果的函数 ---
     function triggerPopEffect() {
-        // 先移除class，强制浏览器重绘，再添加class，这样每次都能触发动画
         player.classList.remove('pop-effect');
-        void player.offsetWidth; // 触发重绘的关键黑魔法
+        void player.offsetWidth; 
         player.classList.add('pop-effect');
     }
 
@@ -487,10 +449,9 @@
         cancelAnimationFrame(collisionFrame);
         
         modal.style.display = 'flex';
-        modalTitle.innerText = '游戏结束';
+        modalTitle.innerText = '骐骥驰骋';
         modalDesc.innerHTML = `
-            <div style="font-size:16px; margin-bottom:10px; color:#666;">你坚持了 ${timeSurvived} 秒</div>
-            <div style="font-size:32px; font-weight:bold; color:#d92e2e;">${score} 分</div>
+            <div style="font-size:32px; font-weight:bold; color:#d92e2e;">恭喜获得${score} 分</div>
         `;
         
         activateButtonCooldown();
@@ -501,5 +462,3 @@
 </script>
 </body>
 </html>
-
-
