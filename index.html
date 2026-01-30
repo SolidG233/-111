@@ -3,29 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>无尽夺宝 - 纯净版</title>
+    <title>无尽夺宝 - 图片背景版</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
             background-color: #fceeb5;
-            /* 游戏主背景：淡黄色的祥云纹理 */
-            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M10 50 Q25 25 40 50 T70 50 T100 50" fill="none" stroke="rgba(217, 46, 46, 0.1)" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="rgba(255, 215, 0, 0.2)"/></svg>');
-            background-size: 100px 100px;
             font-family: 'Microsoft YaHei', sans-serif;
             touch-action: none;
+
+            /* --- 核心修改区域：背景图片设置 --- */
+            
+            /* 1. 这里设置图片路径 */
+            background-image: url("C:\Users\Admin\Desktop\背景.jpg");
+            
+            /* 2. 让图片铺满屏幕，不重复 */
+            background-size: cover; 
+            background-position: center center;
+            background-repeat: no-repeat;
+            
+            /* 3. 确保背景固定不动 */
+            background-attachment: fixed;
         }
 
-        @keyframes bgScroll {
-            from { background-position: 0 0; }
-            to { background-position: 0 1000px; }
-        }
+        /* 原来的滚动动画已删除，因为大图背景滚动会很晕 */
         
-        .bg-animate {
-            animation: bgScroll 20s linear infinite;
-        }
-
         #game-container {
             position: relative;
             width: 100vw;
@@ -39,7 +42,7 @@
             left: 0;
             width: 100%;
             height: 60px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.8); /* 稍微透明一点，透出背景 */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -50,6 +53,7 @@
             font-size: 20px;
             color: #d92e2e;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px); /* 增加毛玻璃效果，更好看 */
         }
 
         /* --- 物品样式 --- */
@@ -84,7 +88,7 @@
             width: 100px;
             height: 100px;
             z-index: 50;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 40 Q50 100 90 40 L80 30 L20 30 Z" fill="%23d92e2e" stroke="%23ffd700" stroke-width="3"/><ellipse cx="50" cy="30" rx="35" ry="10" fill="%23ffd700"/><text x="50" y="70" font-size="30" text-anchor="middle">💰</text></svg>');
+            background-image: url('https://raw.githubusercontent.com/SolidG233/https-github.com-SolidG233/refs/heads/main/dsr.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center bottom;
@@ -109,7 +113,7 @@
             100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
         }
 
-        /* --- 弹窗样式 (内置背景) --- */
+        /* --- 弹窗样式 --- */
         #modal {
             position: absolute;
             top: 0;
@@ -120,28 +124,22 @@
             justify-content: center;
             align-items: center;
             z-index: 200;
-            /* 遮罩背景：深色 + 铜钱纹理 */
-            background-color: rgba(20, 0, 0, 0.9);
-            background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="10" stroke="rgba(255,215,0,0.1)" fill="none" stroke-width="2"/><rect x="26" y="26" width="8" height="8" fill="none" stroke="rgba(255,215,0,0.1)"/></svg>');
+            background-color: rgba(0, 0, 0, 0.7); /* 加深遮罩，突出弹窗 */
         }
 
         .modal-content {
-            /* 弹窗主体：米黄色纸张质感 + 红色边框 */
             background-color: #fffbf0;
-            /* 内部淡淡的祥云背景 */
             background-image: url('data:image/svg+xml;utf8,<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg"><path d="M10 40 Q20 20 40 40 T70 40" fill="none" stroke="rgba(217, 46, 46, 0.05)" stroke-width="2"/></svg>');
             padding: 30px;
             border-radius: 15px;
             text-align: center;
             width: 85%;
             max-width: 320px;
-            /* 双层边框效果 */
             border: 4px solid #d92e2e;
             box-shadow: 0 0 0 4px #fffbf0, 0 10px 25px rgba(0,0,0,0.5);
             position: relative;
         }
 
-        /* 装饰：弹窗顶部的红色横幅 */
         .modal-content::before {
             content: "";
             position: absolute;
@@ -178,13 +176,14 @@
             top: 70px;
             right: 20px;
             font-size: 14px;
-            color: rgba(0,0,0,0.6);
+            color: #333;
             text-align: right;
             line-height: 1.5;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.7); /* 增加不透明度 */
             padding: 8px;
             border-radius: 5px;
             pointer-events: none;
+            backdrop-filter: blur(3px);
         }
 
     </style>
@@ -223,13 +222,11 @@
     let timeSurvived = 0;
     let isPlaying = false;
     
-    // 游戏参数
     let currentSpawnRate;
     let currentFallMin;
     let currentFallMax;
     let bombProbability;
     
-    // 玩家尺寸参数
     let basePlayerWidth = 100; 
     let basePlayerHeight = 100;
 
@@ -247,8 +244,6 @@
     const modalTitle = document.getElementById('modal-title');
     const modalDesc = document.getElementById('modal-desc');
     const gameContainer = document.getElementById('game-container');
-
-    // --- 全屏移动逻辑 ---
 
     function movePlayer(clientX, clientY) {
         if (!isPlaying) return;
@@ -288,17 +283,16 @@
         currentFallMax = 4.0;
         bombProbability = 0.2; 
 
-        // 重置玩家
         player.style.width = basePlayerWidth + 'px';
         player.style.height = basePlayerHeight + 'px';
         player.style.filter = 'none';
         
-        // 初始位置
         player.style.left = '50%';
         player.style.top = '80%'; 
         player.style.transform = 'translate(-50%, -50%)';
 
-        document.body.classList.add('bg-animate');
+        // 移除了 .bg-animate 的添加，因为背景图不需要滚动
+        // document.body.classList.add('bg-animate'); 
 
         updateUI();
         playArea.innerHTML = ''; 
@@ -318,7 +312,6 @@
     }
 
     function updateDifficultyByScore() {
-        // 速度逻辑
         let speedReduction = Math.min(score * 0.02, 1.8); 
         currentFallMin = Math.max(0.6, 2.5 - speedReduction);
         currentFallMax = Math.max(1.0, 4.0 - speedReduction);
@@ -326,7 +319,6 @@
         let rateReduction = Math.min(score * 4, 550);
         currentSpawnRate = Math.max(150, 700 - rateReduction);
 
-        // 体积逻辑
         let sizeBonus = Math.floor(score / 10) * 5;
         let newWidth = Math.min(basePlayerWidth + sizeBonus, 200);
         let newHeight = Math.min(basePlayerHeight + (sizeBonus * 0.8), 180);
@@ -460,7 +452,8 @@
         clearTimeout(spawnTimer);
         cancelAnimationFrame(collisionFrame);
         
-        document.body.classList.remove('bg-animate');
+        // 移除了移除class的动作，因为我们不再添加它了
+        // document.body.classList.remove('bg-animate');
         
         modal.style.display = 'flex';
         modalTitle.innerText = '游戏结束';
