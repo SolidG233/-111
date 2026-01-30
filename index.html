@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>无尽夺宝 - 全屏自由飞翔版</title>
+    <title>无尽夺宝 - 纯净版</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
             background-color: #fceeb5;
-            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.3)"/></svg>'); /* 默认加点纹理 */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            /* 内置背景图案：淡黄色的祥云纹理 */
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M10 50 Q25 25 40 50 T70 50 T100 50" fill="none" stroke="rgba(217, 46, 46, 0.1)" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="rgba(255, 215, 0, 0.2)"/></svg>');
+            background-size: 100px 100px;
             font-family: 'Microsoft YaHei', sans-serif;
             touch-action: none;
-            transition: background-image 0.5s ease;
         }
 
-        /* 新增：背景滚动动画类 */
         @keyframes bgScroll {
-            from { background-position: center 0; }
-            to { background-position: center 1000px; }
+            from { background-position: 0 0; }
+            to { background-position: 0 1000px; }
         }
         
         .bg-animate {
@@ -50,49 +47,49 @@
             box-sizing: border-box;
             z-index: 100;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
             color: #d92e2e;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
+        /* --- 物品样式 (保持大图标) --- */
         .item {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             z-index: 10;
         }
 
-        /* --- 物品样式 --- */
         .yuanbao {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60"><path d="M10 20 Q50 50 90 20 Q80 60 20 60 Q10 60 10 20 Z" fill="%23ffd700" stroke="%23daa520" stroke-width="2"/><ellipse cx="50" cy="20" rx="20" ry="10" fill="%23ffec8b"/></svg>');
-            width: 40px; height: 30px; 
+            width: 60px; height: 45px;
         }
         .hongbao {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" rx="5" fill="%23d92e2e"/><circle cx="50" cy="40" r="15" fill="%23ffd700"/><text x="50" y="48" font-size="20" text-anchor="middle" fill="%23d92e2e" font-weight="bold">¥</text></svg>');
         }
         .moneybag {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 30 Q10 90 50 95 Q90 90 80 30 Q70 10 50 10 Q30 10 20 30 Z" fill="%23800080"/><path d="M35 25 L65 25" stroke="%23ffd700" stroke-width="5"/><text x="50" y="70" font-size="40" text-anchor="middle" fill="%23ffd700">10</text></svg>');
-            width: 60px; height: 60px;
+            width: 80px; height: 80px;
         }
         .bomb {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="55" r="40" fill="black"/><rect x="45" y="5" width="10" height="20" fill="black"/><path d="M50 5 Q60 0 70 10" stroke="orange" stroke-width="3" fill="none"/><circle cx="70" cy="10" r="5" fill="red"/></svg>');
         }
 
+        /* --- 玩家样式 (内置财神形象) --- */
         #player {
             position: absolute;
-            /* 移除 bottom 属性，改为完全由 JS 控制 top/left */
-            width: 80px; 
-            height: 80px;
+            width: 100px;
+            height: 100px;
             z-index: 50;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><path d="M5 25 Q50 95 95 25 L85 15 L15 15 Z" fill="%23d92e2e" stroke="%23ffd700" stroke-width="4"/><text x="50" y="50" font-size="30" text-anchor="middle">👐</text></svg>');
+            /* 内置一个更可爱的聚宝盆图标作为玩家 */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 40 Q50 100 90 40 L80 30 L20 30 Z" fill="%23d92e2e" stroke="%23ffd700" stroke-width="3"/><ellipse cx="50" cy="30" rx="35" ry="10" fill="%23ffd700"/><text x="50" y="70" font-size="30" text-anchor="middle">💰</text></svg>');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center bottom;
             transition: width 0.3s ease, height 0.3s ease;
-            /* 性能优化：告诉浏览器这个元素会移动 */
             will-change: transform, left, top; 
         }
 
@@ -104,9 +101,9 @@
             z-index: 60;
             text-shadow: 1px 1px 0 #fff;
         }
-        .popup-1 { color: #d92e2e; font-size: 20px; }
-        .popup-5 { color: #ff6b00; font-size: 28px; }
-        .popup-10 { color: #800080; font-size: 36px; text-shadow: 2px 2px 0 #ffd700; }
+        .popup-1 { color: #d92e2e; font-size: 24px; }
+        .popup-5 { color: #ff6b00; font-size: 32px; }
+        .popup-10 { color: #800080; font-size: 42px; text-shadow: 2px 2px 0 #ffd700; }
 
         @keyframes floatUp {
             0% { transform: translateY(0) scale(1); opacity: 1; }
@@ -128,7 +125,7 @@
 
         .modal-content {
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 15px;
             text-align: center;
             width: 85%;
@@ -140,13 +137,14 @@
             background: #d92e2e;
             color: white;
             border: none;
-            padding: 12px 40px;
-            font-size: 20px;
-            border-radius: 25px;
+            padding: 15px 50px;
+            font-size: 22px;
+            border-radius: 30px;
             cursor: pointer;
             margin-top: 20px;
             font-weight: bold;
             box-shadow: 0 4px 0 #b02121;
+            transition: transform 0.1s;
         }
         .start-btn:active {
             transform: translateY(4px);
@@ -157,53 +155,14 @@
             position: absolute;
             top: 70px;
             right: 20px;
-            font-size: 12px;
+            font-size: 14px;
             color: rgba(0,0,0,0.6);
             text-align: right;
             line-height: 1.5;
             background: rgba(255,255,255,0.5);
-            padding: 5px;
+            padding: 8px;
             border-radius: 5px;
-            pointer-events: none; /* 防止遮挡点击 */
-        }
-
-        /* --- 上传控件样式 --- */
-        .upload-section {
-            margin-top: 20px;
-            border-top: 1px dashed #ccc;
-            padding-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .upload-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: #333;
-        }
-        .file-input { display: none; }
-        .custom-upload-btn {
-            background: #4CAF50;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            display: inline-block;
-        }
-        .preview-thumb {
-            width: 30px;
-            height: 30px;
-            border: 1px solid #ddd;
-            display: inline-block;
-            vertical-align: middle;
-            background-size: cover;
-            background-position: center;
-            margin-right: 5px;
-            border-radius: 4px;
-            background-color: #eee;
+            pointer-events: none;
         }
 
     </style>
@@ -225,39 +184,14 @@
 
     <div id="modal">
         <div class="modal-content">
-            <h2 id="modal-title">无尽夺宝 (全屏版)</h2>
-            <p id="modal-desc" style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                手指拖动全屏飞翔接宝<br>
+            <h2 id="modal-title">无尽夺宝</h2>
+            <p id="modal-desc" style="font-size: 16px; color: #666; margin-bottom: 25px; line-height: 1.6;">
+                手指拖动聚宝盆接住财宝<br>
                 分数越高 → 速度越快 & 体积越大<br>
-                <span style="color:#d92e2e;">小心炸弹！</span>
+                <span style="color:#d92e2e; font-weight:bold;">千万别碰炸弹！</span>
             </p>
             
             <button class="start-btn" onclick="startGame()">开始挑战</button>
-
-            <!-- DIY 设置区域 -->
-            <div class="upload-section">
-                <div style="font-weight: bold; margin-bottom: 5px; color: #333;">🎨 游戏自定义</div>
-                
-                <!-- 背景上传 -->
-                <div class="upload-row">
-                    <span>游戏背景:</span>
-                    <div>
-                        <div id="bg-preview" class="preview-thumb"></div>
-                        <label for="bg-upload" class="custom-upload-btn">上传图片</label>
-                        <input type="file" id="bg-upload" class="file-input" accept="image/*">
-                    </div>
-                </div>
-
-                <!-- 角色上传 -->
-                <div class="upload-row">
-                    <span>接宝人物:</span>
-                    <div>
-                        <div id="player-preview" class="preview-thumb"></div>
-                        <label for="player-upload" class="custom-upload-btn">上传图片</label>
-                        <input type="file" id="player-upload" class="file-input" accept="image/*">
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -274,8 +208,8 @@
     let bombProbability;
     
     // 玩家尺寸参数
-    let basePlayerWidth = 80;
-    let basePlayerHeight = 80;
+    let basePlayerWidth = 100; 
+    let basePlayerHeight = 100;
 
     let survivalTimer;
     let bombTimer;
@@ -292,33 +226,7 @@
     const modalDesc = document.getElementById('modal-desc');
     const gameContainer = document.getElementById('game-container');
 
-    // --- 图片上传逻辑 ---
-    
-    document.getElementById('bg-upload').addEventListener('change', function(e) {
-        handleImageUpload(e.target, (imgUrl) => {
-            document.body.style.backgroundImage = `url(${imgUrl})`;
-            document.getElementById('bg-preview').style.backgroundImage = `url(${imgUrl})`;
-        });
-    });
-
-    document.getElementById('player-upload').addEventListener('change', function(e) {
-        handleImageUpload(e.target, (imgUrl) => {
-            player.style.backgroundImage = `url(${imgUrl})`;
-            document.getElementById('player-preview').style.backgroundImage = `url(${imgUrl})`;
-        });
-    });
-
-    function handleImageUpload(inputElement, callback) {
-        if (inputElement.files && inputElement.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                callback(e.target.result);
-            }
-            reader.readAsDataURL(inputElement.files[0]);
-        }
-    }
-
-    // --- 核心修改：全屏移动逻辑 ---
+    // --- 全屏移动逻辑 ---
 
     function movePlayer(clientX, clientY) {
         if (!isPlaying) return;
@@ -327,32 +235,24 @@
         const halfWidth = player.offsetWidth / 2;
         const halfHeight = player.offsetHeight / 2;
 
-        // 计算 X 轴 (左右)
         let newLeft = clientX - containerRect.left;
-        // 边界限制 X
         if (newLeft < halfWidth) newLeft = halfWidth; 
         if (newLeft > containerRect.width - halfWidth) newLeft = containerRect.width - halfWidth;
         
-        // 计算 Y 轴 (上下)
         let newTop = clientY - containerRect.top;
-        // 边界限制 Y (顶部留一点空间给UI，底部留一点空间)
-        if (newTop < halfHeight + 60) newTop = halfHeight + 60; // 60是顶部Header的高度
+        if (newTop < halfHeight + 60) newTop = halfHeight + 60; 
         if (newTop > containerRect.height - halfHeight) newTop = containerRect.height - halfHeight;
 
-        // 应用位置
         player.style.left = newLeft + 'px';
         player.style.top = newTop + 'px';
     }
 
-    // 触摸事件：同时获取 X 和 Y
     gameContainer.addEventListener('touchmove', (e) => { 
         e.preventDefault(); 
         movePlayer(e.touches[0].clientX, e.touches[0].clientY); 
     }, { passive: false });
 
-    // 鼠标事件：同时获取 X 和 Y
     gameContainer.addEventListener('mousemove', (e) => { 
-        // 只有在按下鼠标或者纯鼠标移动模式下才移动，这里简化为直接跟随
         movePlayer(e.clientX, e.clientY); 
     });
 
@@ -371,12 +271,11 @@
         player.style.height = basePlayerHeight + 'px';
         player.style.filter = 'none';
         
-        // --- 初始位置设置：居中偏下 ---
+        // 初始位置
         player.style.left = '50%';
-        player.style.top = '80%'; // 初始在屏幕下方
-        player.style.transform = 'translate(-50%, -50%)'; // 使用transform辅助居中
+        player.style.top = '80%'; 
+        player.style.transform = 'translate(-50%, -50%)';
 
-        // 开启背景动画
         document.body.classList.add('bg-animate');
 
         updateUI();
@@ -407,16 +306,16 @@
 
         // 体积逻辑
         let sizeBonus = Math.floor(score / 10) * 5;
-        let newWidth = Math.min(basePlayerWidth + sizeBonus, 160);
-        let newHeight = Math.min(basePlayerHeight + (sizeBonus * 0.8), 140);
+        let newWidth = Math.min(basePlayerWidth + sizeBonus, 200);
+        let newHeight = Math.min(basePlayerHeight + (sizeBonus * 0.8), 180);
 
         player.style.width = newWidth + 'px';
         player.style.height = newHeight + 'px';
 
         let sizeText = "正常";
-        if(newWidth > 100) sizeText = "变大";
-        if(newWidth > 130) sizeText = "巨大";
-        if(newWidth >= 160) sizeText = "巨无霸";
+        if(newWidth > 120) sizeText = "变大";
+        if(newWidth > 160) sizeText = "巨大";
+        if(newWidth >= 200) sizeText = "巨无霸";
 
         statusEl.innerHTML = `
             速度加成: +${Math.floor(speedReduction * 100)}%<br>
@@ -462,10 +361,10 @@
             }
         }
 
-        const maxX = window.innerWidth - 50;
+        const maxX = window.innerWidth - 80; 
         const randomX = Math.floor(Math.random() * maxX);
         item.style.left = randomX + 'px';
-        item.style.top = '-60px'; // 从屏幕外生成
+        item.style.top = '-80px'; 
 
         playArea.appendChild(item);
 
@@ -473,7 +372,7 @@
         
         const animation = item.animate([
             { transform: 'translateY(0)' },
-            { transform: `translateY(${window.innerHeight + 80}px)` }
+            { transform: `translateY(${window.innerHeight + 100}px)` }
         ], {
             duration: duration * 1000,
             easing: 'linear'
@@ -491,8 +390,7 @@
 
         items.forEach(item => {
             const itemRect = item.getBoundingClientRect();
-            // 缩小碰撞箱，手感更好
-            const itemHitboxMargin = 10; 
+            const itemHitboxMargin = 15; 
             
             if (
                 playerRect.left < itemRect.right - itemHitboxMargin &&
@@ -540,7 +438,6 @@
         clearTimeout(spawnTimer);
         cancelAnimationFrame(collisionFrame);
         
-        // 停止背景动画
         document.body.classList.remove('bg-animate');
         
         modal.style.display = 'flex';
@@ -548,11 +445,7 @@
         modalDesc.innerHTML = `
             <div style="font-size:16px; margin-bottom:10px; color:#666;">你坚持了 ${timeSurvived} 秒</div>
             <div style="font-size:32px; font-weight:bold; color:#d92e2e;">${score} 分</div>
-            <div style="margin-top:15px; font-size:12px; color:#999;">
-                (点击下方按钮可更换图片)
-            </div>
         `;
-        document.querySelector('.upload-section').style.display = 'flex';
     }
 </script>
 </body>
