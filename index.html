@@ -2,428 +2,361 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小智的台球游戏 - 修复版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>无尽红包挑战</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #2c3e50;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            color: white;
-            font-family: 'Arial', sans-serif;
-            user-select: none; /* 防止拖拽时选中文本 */
+            overflow: hidden;
+            background-color: #fceeb5;
+            font-family: 'Microsoft YaHei', sans-serif;
+            touch-action: none;
         }
-        h1 { margin-bottom: 10px; }
-        p { margin-bottom: 20px; font-size: 14px; color: #bdc3c7; }
-        .game-container {
+
+        #game-container {
             position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            border-radius: 10px;
-            overflow: hidden; 
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
         }
-        canvas {
-            background-color: #27ae60;
-            border: 20px solid #5d4037; 
-            display: block;
-            cursor: default; /* 默认光标 */
-        }
-        canvas:active {
-            cursor: grabbing; /* 拖拽时抓手光标 */
-        }
-        .controls {
-            margin-top: 15px;
+
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 100;
+            font-weight: bold;
+            font-size: 18px;
+            color: #d92e2e;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+
+        .item {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+        }
+
+        .hongbao {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" rx="5" fill="%23d92e2e"/><circle cx="50" cy="40" r="15" fill="%23ffd700"/><text x="50" y="45" font-size="20" text-anchor="middle" fill="%23d92e2e" font-family="Arial">¥</text></svg>');
+        }
+
+        .bomb {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="55" r="40" fill="black"/><rect x="45" y="5" width="10" height="20" fill="black"/><path d="M50 5 Q60 0 70 10" stroke="orange" stroke-width="3" fill="none"/><circle cx="70" cy="10" r="5" fill="red"/></svg>');
+        }
+
+        #player {
+            position: absolute;
+            bottom: 20px;
+            width: 80px;
+            height: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80"><path d="M10 20 Q50 90 90 20 L80 10 L20 10 Z" fill="%23d92e2e" stroke="%23ffd700" stroke-width="3"/><text x="50" y="45" font-size="30" text-anchor="middle">💰</text></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .score-popup {
+            position: absolute;
+            color: #ff0000;
+            font-weight: bold;
+            font-size: 24px;
+            animation: floatUp 0.5s ease-out forwards;
+            pointer-events: none;
+            z-index: 60;
+            text-shadow: 1px 1px 0 #fff;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+        }
+
+        #modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #e67e22;
+            background: #d92e2e;
             color: white;
             border: none;
-            border-radius: 5px;
-            transition: background 0.3s;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 15px;
         }
-        button:hover { background-color: #d35400; }
-        #msg {
-            height: 20px;
-            color: #f1c40f;
+        
+        /* 增加一个难度提示 */
+        #level-indicator {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            font-size: 14px;
+            color: rgba(0,0,0,0.5);
             font-weight: bold;
-            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
-    <h1>🎱 小智台球室 (修复拖拽)</h1>
-    <p>按住白球向后拉，松开鼠标发射！</p>
-    
-    <div class="game-container">
-        <canvas id="poolTable" width="800" height="400"></canvas>
+<div id="game-container">
+    <div class="header">
+        <span id="score-display">得分: 0</span>
+        <span id="time-display">坚持: 0s</span>
     </div>
-    <div id="msg"></div>
+    <div id="level-indicator">当前炸弹概率: 10%</div>
     
-    <div class="controls">
-        <button onclick="resetGame()">重置游戏</button>
+    <div id="player"></div>
+    <div id="play-area"></div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">无尽红包挑战</h2>
+            <p id="modal-desc">左右滑动接红包<br>时间无限，但炸弹会越来越多！<br>碰到炸弹立即结束</p>
+            <button id="start-btn" onclick="startGame()">开始挑战</button>
+        </div>
     </div>
+</div>
 
 <script>
-    const canvas = document.getElementById('poolTable');
-    const ctx = canvas.getContext('2d');
-    const msgDiv = document.getElementById('msg');
-
-    // 物理参数
-    const FRICTION = 0.985; 
-    const BALL_RADIUS = 12;
-    const POCKET_RADIUS = 25; // 稍微加大一点洞口，更容易进
+    // --- 游戏参数配置 ---
+    let score = 0;
+    let timeSurvived = 0; // 坚持的时间
+    let isPlaying = false;
     
-    // 游戏状态
-    let isDragging = false;
-    let balls = [];
-    let whiteBall = null; // 单独存储白球引用，方便查找
-    let currentMouseX = 0;
-    let currentMouseY = 0;
+    // 动态难度参数
+    let currentSpawnRate;   // 生成速度 (毫秒)
+    let currentFallMin;     // 最小下落时间 (秒)
+    let currentFallMax;     // 最大下落时间 (秒)
+    let bombProbability;    // 炸弹出现的概率 (0.1 = 10%)
 
-    // 定义6个洞的位置 (坐标相对于canvas内部)
-    const pockets = [
-        { x: 0, y: 0 },
-        { x: 400, y: 0 },
-        { x: 800, y: 0 },
-        { x: 0, y: 400 },
-        { x: 400, y: 400 },
-        { x: 800, y: 400 }
-    ];
+    // 计时器引用
+    let survivalTimer;      // 记录生存时间的计时器
+    let difficultyTimer;    // 增加难度的计时器
+    let spawnTimer;         // 生成物品的计时器
+    let collisionFrame;     // 碰撞检测帧
 
-    class Ball {
-        constructor(x, y, color, isWhite = false) {
-            this.x = x;
-            this.y = y;
-            this.vx = 0;
-            this.vy = 0;
-            this.color = color;
-            this.isWhite = isWhite;
-        }
+    // DOM 元素
+    const scoreEl = document.getElementById('score-display');
+    const timeEl = document.getElementById('time-display');
+    const levelEl = document.getElementById('level-indicator');
+    const playArea = document.getElementById('play-area');
+    const player = document.getElementById('player');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const startBtn = document.getElementById('start-btn');
+    const gameContainer = document.getElementById('game-container');
 
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, BALL_RADIUS, 0, Math.PI * 2);
-            ctx.fillStyle = this.color;
-            ctx.fill();
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            ctx.closePath();
+    // --- 玩家控制 (保持不变) ---
+    function movePlayer(clientX) {
+        if (!isPlaying) return;
+        const containerRect = gameContainer.getBoundingClientRect();
+        let newLeft = clientX - containerRect.left;
+        if (newLeft < 40) newLeft = 40; 
+        if (newLeft > containerRect.width - 40) newLeft = containerRect.width - 40;
+        player.style.left = newLeft + 'px';
+    }
+    gameContainer.addEventListener('touchmove', (e) => { e.preventDefault(); movePlayer(e.touches[0].clientX); }, { passive: false });
+    gameContainer.addEventListener('mousemove', (e) => { movePlayer(e.clientX); });
 
-            // 高光
-            ctx.beginPath();
-            ctx.arc(this.x - 3, this.y - 3, BALL_RADIUS / 3, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.fill();
-            ctx.closePath();
-        }
+    // --- 游戏核心逻辑 ---
 
-        update() {
-            // 如果正在拖拽白球，白球不应该移动（防止还没发射就动了）
-            if (this.isWhite && isDragging) return;
+    function startGame() {
+        // 重置数据
+        score = 0;
+        timeSurvived = 0;
+        isPlaying = true;
+        
+        // 初始难度设置
+        currentSpawnRate = 700; // 初始生成较慢
+        currentFallMin = 2.0;   // 初始掉落较慢
+        currentFallMax = 3.5;
+        bombProbability = 0.1;  // 初始只有10%是炸弹
 
-            this.x += this.vx;
-            this.y += this.vy;
-            this.vx *= FRICTION;
-            this.vy *= FRICTION;
+        // 更新UI
+        scoreEl.innerText = '得分: ' + score;
+        timeEl.innerText = '坚持: 0s';
+        levelEl.innerText = '当前炸弹概率: 10%';
+        playArea.innerHTML = ''; 
+        modal.style.display = 'none';
+        player.style.left = '50%';
+        player.style.backgroundColor = 'transparent';
 
-            if (Math.abs(this.vx) < 0.05) this.vx = 0;
-            if (Math.abs(this.vy) < 0.05) this.vy = 0;
+        // 1. 开启生存计时器 (每秒+1)
+        survivalTimer = setInterval(() => {
+            timeSurvived++;
+            timeEl.innerText = '坚持: ' + timeSurvived + 's';
+        }, 1000);
 
-            // 简单的墙壁反弹（辅助进洞判定，防止穿墙）
-            // 只有当球不在洞口附近时才反弹，否则无法进洞
-            // 这里做一个简化的处理：直接反弹，进洞逻辑在 checkPockets 覆盖
-            if (this.x - BALL_RADIUS < 0) { this.x = BALL_RADIUS; this.vx = -this.vx; }
-            if (this.x + BALL_RADIUS > canvas.width) { this.x = canvas.width - BALL_RADIUS; this.vx = -this.vx; }
-            if (this.y - BALL_RADIUS < 0) { this.y = BALL_RADIUS; this.vy = -this.vy; }
-            if (this.y + BALL_RADIUS > canvas.height) { this.y = canvas.height - BALL_RADIUS; this.vy = -this.vy; }
-        }
+        // 2. 开启难度提升计时器 (每3秒提升一次难度)
+        difficultyTimer = setInterval(increaseDifficulty, 3000);
+
+        // 3. 开启生成循环
+        spawnLoop();
+        
+        // 4. 开启碰撞检测
+        checkCollisions(); 
     }
 
-    function initGame() {
-        balls = [];
-        msgDiv.innerText = "";
-        
-        // 创建白球
-        whiteBall = new Ball(200, 200, 'white', true);
-        balls.push(whiteBall);
+    function increaseDifficulty() {
+        // 1. 增加炸弹概率 (上限 60%)
+        if (bombProbability < 0.6) {
+            bombProbability += 0.02; // 每次增加2%
+        }
 
-        // 彩球摆放
-        let startX = 550;
-        let startY = 200;
-        
-        balls.push(new Ball(startX, startY, 'red'));
-        balls.push(new Ball(startX + 25, startY - 13, 'yellow'));
-        balls.push(new Ball(startX + 25, startY + 13, 'blue'));
-        balls.push(new Ball(startX + 50, startY - 26, 'purple'));
-        balls.push(new Ball(startX + 50, startY, 'black')); 
-        balls.push(new Ball(startX + 50, startY + 26, 'orange'));
-        balls.push(new Ball(startX + 75, startY - 39, 'green'));
-        balls.push(new Ball(startX + 75, startY - 13, 'brown'));
-        balls.push(new Ball(startX + 75, startY + 13, 'pink'));
-        balls.push(new Ball(startX + 75, startY + 39, 'maroon'));
+        // 2. 加快生成速度 (下限 200ms)
+        if (currentSpawnRate > 200) {
+            currentSpawnRate -= 20;
+        }
+
+        // 3. 加快下落速度 (下限 0.8s)
+        if (currentFallMin > 0.8) {
+            currentFallMin *= 0.98;
+            currentFallMax *= 0.98;
+        }
+
+        // 更新UI显示
+        levelEl.innerText = `当前炸弹概率: ${Math.floor(bombProbability * 100)}%`;
     }
 
-    function drawPockets() {
-        ctx.fillStyle = '#111';
-        pockets.forEach(pocket => {
-            ctx.beginPath();
-            ctx.arc(pocket.x, pocket.y, POCKET_RADIUS, 0, Math.PI * 2);
-            ctx.fill();
+    function spawnLoop() {
+        if (!isPlaying) return;
+        spawnItem();
+        // 使用当前的生成速率设置下一次生成
+        spawnTimer = setTimeout(spawnLoop, currentSpawnRate);
+    }
+
+    function spawnItem() {
+        const item = document.createElement('div');
+        
+        // 核心改动：根据当前难度概率决定是否生成炸弹
+        const isBomb = Math.random() < bombProbability;
+
+        item.classList.add('item');
+        item.classList.add(isBomb ? 'bomb' : 'hongbao');
+        item.dataset.type = isBomb ? 'bomb' : 'hongbao';
+
+        const maxX = window.innerWidth - 50;
+        const randomX = Math.floor(Math.random() * maxX);
+        item.style.left = randomX + 'px';
+        item.style.top = '-60px';
+
+        playArea.appendChild(item);
+
+        // 掉落动画
+        const duration = Math.random() * (currentFallMax - currentFallMin) + currentFallMin;
+        const animation = item.animate([
+            { transform: 'translateY(0)' },
+            { transform: `translateY(${window.innerHeight + 60}px)` }
+        ], {
+            duration: duration * 1000,
+            easing: 'linear'
         });
-    }
 
-    function checkCollisions() {
-        for (let i = 0; i < balls.length; i++) {
-            for (let j = i + 1; j < balls.length; j++) {
-                let b1 = balls[i];
-                let b2 = balls[j];
-                let dx = b2.x - b1.x;
-                let dy = b2.y - b1.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < BALL_RADIUS * 2) {
-                    let angle = Math.atan2(dy, dx);
-                    let sin = Math.sin(angle);
-                    let cos = Math.cos(angle);
-
-                    // 旋转速度
-                    let vx1 = b1.vx * cos + b1.vy * sin;
-                    let vy1 = b1.vy * cos - b1.vx * sin;
-                    let vx2 = b2.vx * cos + b2.vy * sin;
-                    let vy2 = b2.vy * cos - b2.vx * sin;
-
-                    // 交换速度
-                    let vx1Final = vx2;
-                    let vx2Final = vx1;
-
-                    // 修正重叠位置
-                    let overlap = BALL_RADIUS * 2 - distance;
-                    let moveX = (overlap / 2) * cos;
-                    let moveY = (overlap / 2) * sin;
-                    
-                    b1.x -= moveX;
-                    b1.y -= moveY;
-                    b2.x += moveX;
-                    b2.y += moveY;
-
-                    // 转回原坐标系
-                    b1.vx = vx1Final * cos - vy1 * sin;
-                    b1.vy = vy1 * cos + vx1Final * sin;
-                    b2.vx = vx2Final * cos - vy2 * sin;
-                    b2.vy = vy2 * cos + vx2Final * sin;
-                }
-            }
-        }
-    }
-
-    function checkPockets() {
-        for (let i = balls.length - 1; i >= 0; i--) {
-            let ball = balls[i];
-            
-            // 只有当球在移动时才检测进洞，防止静态误判
-            // 或者球离洞口非常近
-            let inPocket = false;
-            for (let pocket of pockets) {
-                let dx = ball.x - pocket.x;
-                let dy = ball.y - pocket.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                
-                // 判定距离稍微放宽
-                if (dist < POCKET_RADIUS) {
-                    inPocket = true;
-                    break;
-                }
-            }
-
-            if (inPocket) {
-                if (ball.isWhite) {
-                    msgDiv.innerText = "😱 白球进洞！犯规！";
-                    ball.vx = 0;
-                    ball.vy = 0;
-                    ball.x = 200;
-                    ball.y = 200;
-                    isDragging = false; // 进洞后强制停止拖拽状态
-                } else {
-                    balls.splice(i, 1);
-                    if (balls.length === 1 && balls[0].isWhite) {
-                         msgDiv.innerText = "🎉 恭喜！清台成功！";
-                    }
-                }
-            }
-        }
-    }
-
-    // --- 鼠标事件修复 ---
-
-    // 获取鼠标在Canvas内的坐标
-    function getMousePos(evt) {
-        const rect = canvas.getBoundingClientRect();
-        return {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top
+        animation.onfinish = () => {
+            if (item.parentNode) item.remove();
         };
     }
 
-    canvas.addEventListener('mousedown', (e) => {
-        const pos = getMousePos(e);
-        
-        // 只有当白球几乎静止时才能拖拽
-        if (Math.abs(whiteBall.vx) < 0.1 && Math.abs(whiteBall.vy) < 0.1) {
-            let dist = Math.sqrt((pos.x - whiteBall.x)**2 + (pos.y - whiteBall.y)**2);
-            
-            // 扩大一点点击范围，方便操作 (半径的2倍)
-            if (dist < BALL_RADIUS * 2.5) {
-                isDragging = true;
-                msgDiv.innerText = "";
-                // 记录当前鼠标位置用于画线
-                currentMouseX = pos.x;
-                currentMouseY = pos.y;
+    // --- 碰撞检测 (保持高效) ---
+    function checkCollisions() {
+        if (!isPlaying) return;
+        const playerRect = player.getBoundingClientRect();
+        const items = document.querySelectorAll('.item');
+
+        items.forEach(item => {
+            const itemRect = item.getBoundingClientRect();
+            if (
+                playerRect.left < itemRect.right &&
+                playerRect.right > itemRect.left &&
+                playerRect.top < itemRect.bottom &&
+                playerRect.bottom > itemRect.top
+            ) {
+                handleCatch(item, itemRect.left, itemRect.top);
             }
-        }
-    });
-
-    canvas.addEventListener('mousemove', (e) => {
-        const pos = getMousePos(e);
-        currentMouseX = pos.x;
-        currentMouseY = pos.y;
-        
-        // 改变鼠标样式提示用户
-        if (!isDragging) {
-            let dist = Math.sqrt((pos.x - whiteBall.x)**2 + (pos.y - whiteBall.y)**2);
-            if (dist < BALL_RADIUS * 2.5 && Math.abs(whiteBall.vx) < 0.1) {
-                canvas.style.cursor = "pointer";
-            } else {
-                canvas.style.cursor = "default";
-            }
-        }
-    });
-
-    canvas.addEventListener('mouseup', (e) => {
-        if (!isDragging) return;
-        
-        // 计算力度向量：从鼠标位置指向白球位置（反向拉弓）
-        let forceX = whiteBall.x - currentMouseX;
-        let forceY = whiteBall.y - currentMouseY;
-        
-        // 限制最大力度
-        const MAX_FORCE = 200;
-        let forceMag = Math.sqrt(forceX**2 + forceY**2);
-        
-        if (forceMag > MAX_FORCE) {
-            let scale = MAX_FORCE / forceMag;
-            forceX *= scale;
-            forceY *= scale;
-        }
-
-        // 发射！
-        // 增加一点力度系数，让球跑得快点
-        whiteBall.vx = forceX * 0.15;
-        whiteBall.vy = forceY * 0.15;
-
-        isDragging = false;
-        canvas.style.cursor = "default";
-    });
-
-    // 触摸屏支持 (手机也能玩)
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // 防止滚动
-        const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
-        const touchX = touch.clientX - rect.left;
-        const touchY = touch.clientY - rect.top;
-
-        if (Math.abs(whiteBall.vx) < 0.1 && Math.abs(whiteBall.vy) < 0.1) {
-            let dist = Math.sqrt((touchX - whiteBall.x)**2 + (touchY - whiteBall.y)**2);
-            if (dist < BALL_RADIUS * 3) {
-                isDragging = true;
-                currentMouseX = touchX;
-                currentMouseY = touchY;
-            }
-        }
-    }, {passive: false});
-
-    canvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        if(!isDragging) return;
-        const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
-        currentMouseX = touch.clientX - rect.left;
-        currentMouseY = touch.clientY - rect.top;
-    }, {passive: false});
-
-    canvas.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-        // 逻辑同 mouseup
-        let forceX = whiteBall.x - currentMouseX;
-        let forceY = whiteBall.y - currentMouseY;
-        const MAX_FORCE = 200;
-        let forceMag = Math.sqrt(forceX**2 + forceY**2);
-        if (forceMag > MAX_FORCE) {
-            let scale = MAX_FORCE / forceMag;
-            forceX *= scale;
-            forceY *= scale;
-        }
-        whiteBall.vx = forceX * 0.15;
-        whiteBall.vy = forceY * 0.15;
-        isDragging = false;
-    });
-
-
-    function gameLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        drawPockets();
-
-        // 画瞄准线 (只有拖拽时才画)
-        if (isDragging) {
-            ctx.beginPath();
-            ctx.moveTo(whiteBall.x, whiteBall.y);
-            ctx.lineTo(currentMouseX, currentMouseY);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-            ctx.lineWidth = 4;
-            ctx.setLineDash([5, 5]); // 虚线
-            ctx.stroke();
-            ctx.setLineDash([]);
-            
-            // 画一个力度指示圆
-            ctx.beginPath();
-            ctx.arc(whiteBall.x, whiteBall.y, Math.sqrt((whiteBall.x-currentMouseX)**2 + (whiteBall.y-currentMouseY)**2), 0, Math.PI*2);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-        }
-
-        checkPockets();
-
-        balls.forEach(ball => {
-            ball.update();
-            ball.draw();
         });
-
-        checkCollisions();
-
-        requestAnimationFrame(gameLoop);
+        collisionFrame = requestAnimationFrame(checkCollisions);
     }
 
-    function resetGame() {
-        initGame();
+    function handleCatch(item, x, y) {
+        const type = item.dataset.type;
+        item.remove();
+
+        if (type === 'bomb') {
+            // 碰到炸弹，直接结束
+            player.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            gameOver();
+        } else {
+            score += 10;
+            scoreEl.innerText = '得分: ' + score;
+            showScorePopup(x, y);
+        }
     }
 
-    initGame();
-    gameLoop();
+    function showScorePopup(x, y) {
+        const popup = document.createElement('div');
+        popup.classList.add('score-popup');
+        popup.innerText = '+10';
+        popup.style.left = x + 'px';
+        popup.style.top = (y - 30) + 'px'; 
+        playArea.appendChild(popup);
+        setTimeout(() => popup.remove(), 500);
+    }
 
+    function gameOver() {
+        isPlaying = false;
+        clearInterval(survivalTimer);
+        clearInterval(difficultyTimer);
+        clearTimeout(spawnTimer);
+        cancelAnimationFrame(collisionFrame);
+        
+        modal.style.display = 'flex';
+        
+        modalTitle.innerText = 'BOOM! 游戏结束';
+        modalDesc.innerHTML = `
+            坚持时间：<span style="color:#d92e2e;font-size:20px">${timeSurvived}秒</span><br>
+            最终得分：<span style="color:#d92e2e;font-size:24px">${score}</span><br>
+            <span style="font-size:12px;color:gray">炸弹概率达到了 ${Math.floor(bombProbability * 100)}%</span>
+        `;
+        startBtn.innerText = '不服再来';
+    }
 </script>
 </body>
 </html>
-
