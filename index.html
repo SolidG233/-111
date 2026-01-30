@@ -12,7 +12,7 @@
             background-color: #fceeb5;
             font-family: 'Microsoft YaHei', sans-serif;
             touch-action: none;
-            background-image: url('https://img.heliar.top/file/1769753925442_图层可见性_拷贝.jpg');
+            background-image: url('https://img.heliar.top/file/1769754167285_bej.jpg');
             background-size: cover; 
             background-position: center center;
             background-repeat: no-repeat;
@@ -206,8 +206,6 @@
         <span id="time-display">坚持: 0s</span>
     </div>
     <div id="status-indicator">
-        速度等级: 1<br>
-        接宝范围: 正常
     </div>
     
     <div id="player"></div>
@@ -285,7 +283,7 @@
     });
 
     function activateButtonCooldown() {
-        let timeLeft = 3;
+        let timeLeft = 5;
         startBtn.classList.add('disabled');
         startBtn.innerText = `请等待 ${timeLeft}s`;
         
@@ -503,4 +501,5 @@
 </script>
 </body>
 </html>
+
 
