@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>读书小方接福啦</title>
+    <title>开工接福运</title>
     <style>
         body {
             margin: 0;
@@ -194,11 +194,11 @@
 
     <div id="modal">
         <div class="modal-content">
-            <h2 id="modal-title" style="color:#d92e2e; margin-top:0; font-size:28px;">读书小方接福啦</h2>
+            <h2 id="modal-title" style="color:#d92e2e; margin-top:0; font-size:28px;">开工接福运</h2>
             <p id="modal-desc" style="font-size: 16px; color: #555; margin-bottom: 25px; line-height: 1.6;">
-                手指拖动小书人接住好运<br>
+                手指拖动读书人接住福运<br>
                 <span style="color:#d92e2e; font-weight:bold;">开工红包12:18准时到账</span><br>
-                <span style="color:#d92e2e; font-weight:bold; background:rgba(217,46,46,0.1); padding:2px 5px; border-radius:4px;">千万别碰炸弹！</span>
+                <span style="color:#d92e2e; font-weight:bold; background:rgba(217,46,46,0.1); padding:2px 5px; border-radius:4px;">小心炸弹哦！</span>
             </p>
             
             <button id="start-btn" class="start-btn" onclick="startGame()">开工大吉</button>
@@ -265,12 +265,12 @@
     function activateButtonCooldown() {
         let timeLeft = 3;
         startBtn.classList.add('disabled');
-        startBtn.innerText = `请等待 ${timeLeft}s`;
+        startBtn.innerText = `福运加载中 ${timeLeft}s`;
         
         const timer = setInterval(() => {
             timeLeft--;
             if (timeLeft > 0) {
-                startBtn.innerText = `请等待 ${timeLeft}s`;
+                startBtn.innerText = `福运加载中 ${timeLeft}s`;
             } else {
                 clearInterval(timer);
                 startBtn.classList.remove('disabled');
@@ -462,6 +462,7 @@
 </script>
 </body>
 </html>
+
 
 
 
