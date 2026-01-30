@@ -12,23 +12,13 @@
             background-color: #fceeb5;
             font-family: 'Microsoft YaHei', sans-serif;
             touch-action: none;
-
-            /* --- 核心修改区域：背景图片设置 --- */
-            
-            /* 1. 这里设置图片路径 */
             background-image: url('https://raw.githubusercontent.com/SolidG233/https-github.com-SolidG233/dcbae19150d8e46c297bc2e9338f08be24c9e7c3/12.jpg');
-            
-            /* 2. 让图片铺满屏幕，不重复 */
             background-size: cover; 
             background-position: center center;
             background-repeat: no-repeat;
-            
-            /* 3. 确保背景固定不动 */
             background-attachment: fixed;
         }
 
-        /* 原来的滚动动画已删除，因为大图背景滚动会很晕 */
-        
         #game-container {
             position: relative;
             width: 100vw;
@@ -42,7 +32,7 @@
             left: 0;
             width: 100%;
             height: 60px;
-            background: rgba(255, 255, 255, 0.8); /* 稍微透明一点，透出背景 */
+            background: rgba(255, 255, 255, 0.8);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -53,10 +43,9 @@
             font-size: 20px;
             color: #d92e2e;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            backdrop-filter: blur(5px); /* 增加毛玻璃效果，更好看 */
+            backdrop-filter: blur(5px);
         }
 
-        /* --- 物品样式 --- */
         .item {
             position: absolute;
             width: 70px;
@@ -82,7 +71,6 @@
             background-image: url('https://img.heliar.top/file/1769753263426_boom.png');
         }
 
-        /* --- 玩家样式 --- */
         #player {
             position: absolute;
             width: 100px;
@@ -92,8 +80,20 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center bottom;
-            transition: width 0.3s ease, height 0.3s ease;
+            /* width和height的过渡保留，transform交给动画控制 */
+            transition: width 0.3s ease, height 0.3s ease; 
             will-change: transform, left, top; 
+        }
+
+        /* --- 新增：吃到奖励时的Q弹动画 --- */
+        @keyframes popScale {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); } /* 放大到1.2倍 */
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .pop-effect {
+            animation: popScale 0.15s ease-out; /* 0.15秒完成，快速有力 */
         }
 
         .score-popup {
@@ -113,7 +113,6 @@
             100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
         }
 
-        /* --- 弹窗样式 --- */
         #modal {
             position: absolute;
             top: 0;
@@ -124,7 +123,7 @@
             justify-content: center;
             align-items: center;
             z-index: 200;
-            background-color: rgba(0, 0, 0, 0.7); /* 加深遮罩，突出弹窗 */
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
         .modal-content {
@@ -163,14 +162,25 @@
             margin-top: 20px;
             font-weight: bold;
             box-shadow: 0 4px 0 #801010;
-            transition: transform 0.1s;
+            transition: all 0.2s;
             text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+            min-width: 200px; 
         }
         .start-btn:active {
             transform: translateY(4px);
             box-shadow: none;
         }
         
+        .start-btn.disabled {
+            background: #999;
+            border-color: #666;
+            color: #ddd;
+            cursor: not-allowed;
+            box-shadow: none;
+            pointer-events: none;
+            transform: translateY(2px);
+        }
+
         #status-indicator {
             position: absolute;
             top: 70px;
@@ -179,7 +189,7 @@
             color: #333;
             text-align: right;
             line-height: 1.5;
-            background: rgba(255,255,255,0.7); /* 增加不透明度 */
+            background: rgba(255,255,255,0.7);
             padding: 8px;
             border-radius: 5px;
             pointer-events: none;
@@ -212,7 +222,7 @@
                 <span style="color:#d92e2e; font-weight:bold; background:rgba(217,46,46,0.1); padding:2px 5px; border-radius:4px;">千万别碰炸弹！</span>
             </p>
             
-            <button class="start-btn" onclick="startGame()">开始挑战</button>
+            <button id="start-btn" class="start-btn" onclick="startGame()">开始挑战</button>
         </div>
     </div>
 </div>
@@ -244,6 +254,7 @@
     const modalTitle = document.getElementById('modal-title');
     const modalDesc = document.getElementById('modal-desc');
     const gameContainer = document.getElementById('game-container');
+    const startBtn = document.getElementById('start-btn');
 
     function movePlayer(clientX, clientY) {
         if (!isPlaying) return;
@@ -273,6 +284,23 @@
         movePlayer(e.clientX, e.clientY); 
     });
 
+    function activateButtonCooldown() {
+        let timeLeft = 3;
+        startBtn.classList.add('disabled');
+        startBtn.innerText = `请等待 ${timeLeft}s`;
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) {
+                startBtn.innerText = `请等待 ${timeLeft}s`;
+            } else {
+                clearInterval(timer);
+                startBtn.classList.remove('disabled');
+                startBtn.innerText = '开始挑战';
+            }
+        }, 1000);
+    }
+
     function startGame() {
         score = 0;
         timeSurvived = 0;
@@ -290,9 +318,6 @@
         player.style.left = '50%';
         player.style.top = '80%'; 
         player.style.transform = 'translate(-50%, -50%)';
-
-        // 移除了 .bg-animate 的添加，因为背景图不需要滚动
-        // document.body.classList.add('bg-animate'); 
 
         updateUI();
         playArea.innerHTML = ''; 
@@ -431,7 +456,18 @@
             updateUI();
             updateDifficultyByScore(); 
             showScorePopup(x, y, points);
+            
+            // --- 新增：触发Q弹动画 ---
+            triggerPopEffect();
         }
+    }
+
+    // --- 新增：处理Q弹效果的函数 ---
+    function triggerPopEffect() {
+        // 先移除class，强制浏览器重绘，再添加class，这样每次都能触发动画
+        player.classList.remove('pop-effect');
+        void player.offsetWidth; // 触发重绘的关键黑魔法
+        player.classList.add('pop-effect');
     }
 
     function showScorePopup(x, y, points) {
@@ -452,17 +488,18 @@
         clearTimeout(spawnTimer);
         cancelAnimationFrame(collisionFrame);
         
-        // 移除了移除class的动作，因为我们不再添加它了
-        // document.body.classList.remove('bg-animate');
-        
         modal.style.display = 'flex';
         modalTitle.innerText = '游戏结束';
         modalDesc.innerHTML = `
             <div style="font-size:16px; margin-bottom:10px; color:#666;">你坚持了 ${timeSurvived} 秒</div>
             <div style="font-size:32px; font-weight:bold; color:#d92e2e;">${score} 分</div>
         `;
+        
+        activateButtonCooldown();
     }
+
+    activateButtonCooldown();
+
 </script>
 </body>
 </html>
-
